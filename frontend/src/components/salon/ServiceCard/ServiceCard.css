@@ -1,0 +1,234 @@
+.service-card {
+  position: relative;
+  background: #fff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Badges */
+.popular-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: var(--warning-color);
+  color: var(--text-dark);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: var(--error-color);
+  color: white;
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* Service Image */
+.service-image {
+  height: 200px;
+  overflow: hidden;
+}
+
+.service-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.service-card:hover .service-image img {
+  transform: scale(1.05);
+}
+
+.service-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-400);
+}
+
+/* Service Content */
+.service-content {
+  padding: var(--spacing-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-category {
+  font-size: var(--font-size-xs);
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.service-title {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-lg);
+  line-height: 1.3;
+}
+
+.service-link {
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.service-link:hover {
+  color: var(--primary-color);
+}
+
+.service-description {
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-lg);
+  flex: 1;
+}
+
+/* Service Meta */
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-sm) 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-icon {
+  color: var(--gray-500);
+  width: 16px;
+  height: 16px;
+}
+
+.meta-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.meta-item.price .meta-text {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.has-discount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: var(--gray-500);
+  font-size: var(--font-size-xs);
+  font-weight: normal;
+}
+
+.current-price {
+  color: var(--error-color);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+/* Service Actions */
+.service-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: auto;
+}
+
+.service-actions .btn {
+  flex: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .service-image {
+    height: 160px;
+  }
+  
+  .service-content {
+    padding: var(--spacing-md);
+  }
+  
+  .service-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+  
+  .service-actions {
+    flex-direction: column;
+  }
+}
+
+/* Compact Variant */
+.service-card.compact {
+  flex-direction: row;
+  align-items: center;
+}
+
+.service-card.compact .service-image {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.service-card.compact .service-content {
+  padding: var(--spacing-md);
+}
+
+.service-card.compact .service-description {
+  display: none;
+}
+
+.service-card.compact .service-meta {
+  margin-bottom: var(--spacing-md);
+}
+
+.service-card.compact .service-actions {
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.service-card.compact .service-actions .btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}

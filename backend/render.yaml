@@ -1,0 +1,47 @@
+# render.yaml
+services:
+  - type: web
+    name: salon-backend
+    env: python
+    plan: free
+    region: ohio  # or your preferred region
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn salon.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+    healthCheckPath: /api/services/
+    autoDeploy: true
+
+  - type: web
+    name: salon-frontend
+    env: static
+    plan: free
+    region: ohio
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: ./frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: salon-backend
+          type: web
+          property: url
+        value: /api
+      - key: REACT_APP_SITE_NAME
+        value: "Virginia Hair Braider"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    autoDeploy: true
+
+databases:
+  - name: salon-db
+    plan: free
+    region: ohio
+    databaseName: salon
+    user: salon_user

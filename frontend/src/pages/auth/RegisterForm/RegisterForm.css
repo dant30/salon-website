@@ -1,0 +1,141 @@
+.auth-form-container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background: #fff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+.auth-form-header h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-sm);
+}
+
+.auth-form-header p {
+  font-size: var(--font-size-md);
+  color: var(--text-light);
+  margin-bottom: var(--spacing-xl);
+}
+
+.row {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.col { flex: 1; }
+
+/* Input with icon */
+.input-with-icon {
+  position: relative;
+}
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.9rem;
+  transform: translateY(-50%);
+  color: var(--gray-400);
+  font-size: var(--font-size-lg);
+}
+.input-with-icon .form-control {
+  width: 100%;
+  padding: 0.65rem 3rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  transition: all 0.2s ease;
+}
+.input-with-icon .form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 18px rgba(138,109,59,0.08);
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--gray-500);
+  font-size: var(--font-size-lg);
+}
+
+/* Password strength */
+.password-strength {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.strength-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.strength-fill {
+  width: 0%;
+  height: 100%;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.strength-fill.weak { width: 33%; background: var(--error-color); }
+.strength-fill.medium { width: 66%; background: var(--warning-color); }
+.strength-fill.strong { width: 100%; background: var(--success-color); }
+.strength-text { font-size: 0.85rem; color: var(--text-light); white-space: nowrap; }
+
+/* Button */
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: #fff;
+  padding: 0.9rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(138,109,59,0.12);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary[disabled] { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-dark);
+}
+.checkbox-label input {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Footer */
+.auth-form-footer {
+  margin-top: var(--spacing-lg);
+  text-align: center;
+}
+.auth-link {
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+}
+.auth-link:hover { text-decoration: underline; }
+
+/* Errors */
+.form-text.error { color: var(--error-color); font-size: var(--font-size-sm); margin-top: 0.25rem; }
+
+/* Responsive */
+@media (max-width: 576px) {
+  .row { flex-direction: column; gap: var(--spacing-sm); }
+  .col { margin-bottom: var(--spacing-md); }
+  .auth-form-container { padding: var(--spacing-lg); box-shadow: none; background: transparent; }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .content { padding: 30px; background-color: #fff; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .button { background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Appointment Reminder - {{ site_name }}</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hello {{ client.first_name|default:"there" }},</p>
+            
+            <p>This is a friendly reminder about your upcoming appointment:</p>
+            <ul>
+                <li><strong>Service:</strong> {{ service.name }}</li>
+                <li><strong>Staff:</strong> {{ staff.full_name }}</li>
+                <li><strong>Date:</strong> {{ appointment.appointment_date }}</li>
+                <li><strong>Time:</strong> {{ appointment.start_time }}</li>
+            </ul>
+            
+            <p>We look forward to seeing you!</p>
+            
+            <p>Best regards,<br>The {{ site_name }} Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; {{ current_year }} {{ site_name }}. All rights reserved.</p>
+            <p>This email was sent to {{ client.email }}</p>
+        </div>
+    </div>
+</body>
+</html>

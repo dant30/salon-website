@@ -1,0 +1,35 @@
+# Python/Django
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3   # <-- ignores your DB file (db.sqlite3)
+
+# Environments
+env/
+venv/
+*.env
+.env
+
+# Logs
+*.log
+*.pot
+
+# Media & static
+media/
+staticfiles/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Node / React frontend
+node_modules/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db

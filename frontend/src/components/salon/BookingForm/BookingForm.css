@@ -1,0 +1,248 @@
+.booking-form-container {
+  background: #fff;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Booking Steps */
+.booking-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.step-item.completed {
+  cursor: pointer;
+}
+
+.step-item:not(.completed) {
+  cursor: default;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  transition: all var(--transition-base);
+  z-index: 1;
+  background-color: var(--gray-200);
+  color: var(--text-light);
+  border: 2px solid var(--gray-300);
+}
+
+.step-item.active .step-number {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.step-item.completed .step-number {
+  background-color: var(--success-color);
+  color: white;
+  border-color: var(--success-color);
+}
+
+.step-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+}
+
+.step-icon {
+  display: none;
+  font-size: var(--font-size-base);
+}
+
+.step-item.active .step-label {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.step-connector {
+  position: absolute;
+  top: 20px;
+  left: calc(50% + 20px);
+  right: calc(-50% + 20px);
+  height: 2px;
+  background-color: var(--gray-300);
+  z-index: 0;
+}
+
+.step-item.completed .step-connector {
+  background-color: var(--success-color);
+}
+
+/* Booking Content */
+.booking-content {
+  min-height: 400px;
+}
+
+.booking-step {
+  padding: var(--spacing-lg) 0;
+}
+
+.booking-step h3 {
+  font-size: var(--font-size-xl);
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-xs);
+}
+
+.booking-step p {
+  color: var(--text-light);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Booking Details Form */
+.booking-details-form {
+  padding: var(--spacing-lg) 0;
+}
+
+.booking-summary {
+  background-color: var(--gray-50);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item.price {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.form-section h4 {
+  font-size: var(--font-size-lg);
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Step Actions */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.step-actions .btn {
+  min-width: 120px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .booking-form-container {
+    padding: var(--spacing-lg);
+  }
+  
+  .booking-steps {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+  
+  .step-item {
+    flex-direction: row;
+    gap: var(--spacing-md);
+    text-align: left;
+  }
+  
+  .step-number {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  
+  .step-label {
+    align-items: flex-start;
+    flex: 1;
+  }
+  
+  .step-icon {
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .step-connector {
+    display: none;
+  }
+  
+  .step-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .step-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-form-container {
+    padding: var(--spacing-md);
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+  }
+  
+  .step-number {
+    width: 32px;
+    height: 32px;
+    font-size: var(--font-size-sm);
+  }
+  
+  .booking-summary {
+    padding: var(--spacing-md);
+  }
+  
+  .summary-item {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

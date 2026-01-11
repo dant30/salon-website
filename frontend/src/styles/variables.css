@@ -1,0 +1,67 @@
+/* This file is now integrated into globals.css as CSS variables */
+/* Keeping it as reference for additional custom properties */
+
+:root {
+  /* Additional color variations */
+  --primary-50: #faf6f0;
+  --primary-100: #f3ecdc;
+  --primary-200: #e6d9b9;
+  --primary-300: #d9c696;
+  --primary-400: #ccb373;
+  --primary-500: #8a6d3b;
+  --primary-600: #7a5e34;
+  --primary-700: #6b4f2c;
+  --primary-800: #5b4025;
+  --primary-900: #4c311d;
+
+  /* Neutral colors */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Semantic colors */
+  --success-50: #f0f9f0;
+  --success-100: #d4f5d9;
+  --success-500: #28a745;
+  --success-700: #1e7e34;
+
+  --warning-50: #fff8e1;
+  --warning-100: #ffecb3;
+  --warning-500: #ffc107;
+  --warning-700: #ff8f00;
+
+  --error-50: #fef2f2;
+  --error-100: #fee2e2;
+  --error-500: #dc3545;
+  --error-700: #b91c1c;
+
+  --info-50: #eff6ff;
+  --info-100: #dbeafe;
+  --info-500: #17a2b8;
+  --info-700: #0c5460;
+
+  /* Z-index layers */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* Breakpoints */
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+}

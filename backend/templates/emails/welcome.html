@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .content { padding: 30px; background-color: #fff; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .button { background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to {{ site_name }}!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hello {{ user.first_name|default:"there" }},</p>
+            
+            <p>Thank you for creating an account with {{ site_name }}! We're excited to have you as part of our salon family.</p>
+            
+            <p>With your account, you can:</p>
+            <ul>
+                <li>Book appointments online</li>
+                <li>View your appointment history</li>
+                <li>Save your favorite services</li>
+                <li>Receive special offers and promotions</li>
+            </ul>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="{{ site_url }}" class="button">Book Your First Appointment</a>
+            </p>
+            
+            <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
+            
+            <p>Best regards,<br>The {{ site_name }} Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; {{ current_year }} {{ site_name }}. All rights reserved.</p>
+            <p>This email was sent to {{ user.email }}</p>
+        </div>
+    </div>
+</body>
+</html>
