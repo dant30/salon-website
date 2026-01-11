@@ -14,6 +14,8 @@ services:
         generateValue: true
       - key: WEB_CONCURRENCY
         value: 4
+      - key: ALLOWED_HOSTS  # Add this
+        value: salon-backend-hl61.onrender.com,.onrender.com  # Allows the specific domain and any .onrender.com subdomain
     healthCheckPath: /api/services/
     autoDeploy: true
 
