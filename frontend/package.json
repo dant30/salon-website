@@ -2,6 +2,7 @@
   "name": "salon-frontend",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://salon-frontend.onrender.com",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -20,9 +21,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "REACT_APP_ENV=production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build:prod": "REACT_APP_ENV=production react-scripts build"
+    "predeploy": "npm run build",
+    "deploy": "echo \"Deployment handled by Render\""
   },
   "eslintConfig": {
     "extends": [
