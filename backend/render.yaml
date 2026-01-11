@@ -16,11 +16,13 @@ services:
         value: 4
       - key: ALLOWED_HOSTS  # Add this
         value: salon-backend-hl61.onrender.com,.onrender.com  # Allows the specific domain and any .onrender.com subdomain
+      - key: CORS_ALLOWED_ORIGINS  # Add this
+        value: https://salon-frontend-4pst.onrender.com
     healthCheckPath: /api/services/
     autoDeploy: true
 
   - type: web
-    name: salon-frontend
+    name: salon-frontend-4pst  # Match Render's assigned name
     env: static
     plan: free
     region: ohio

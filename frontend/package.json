@@ -2,7 +2,7 @@
   "name": "salon-frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://salon-frontend.onrender.com",
+  "homepage": "https://salon-frontend-4pst.onrender.com/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",

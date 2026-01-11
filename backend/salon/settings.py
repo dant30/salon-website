@@ -8,6 +8,9 @@ from datetime import timedelta
 from decouple import config
 import dj_database_url
 
+# Determine if running on Render
+ON_RENDER = os.environ.get('RENDER', None) is not None
+
 # Determine environment
 ENVIRONMENT = config('ENVIRONMENT', default='development')
 
@@ -21,8 +24,11 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-default-key-for-dev')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Update ALLOWED_HOSTS based on environment
-if ENVIRONMENT == 'production':
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+if ENVIRONMENT == 'production' or ON_RENDER:
+    ALLOWED_HOSTS = config(
+        'ALLOWED_HOSTS', 
+        default='salon-backend-hl61.onrender.com,salon-frontend-4pst.onrender.com'
+    ).split(',')
 else:
     ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
@@ -86,7 +92,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default=config('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
         conn_max_age=600,
-        ssl_require=ENVIRONMENT == 'production'
+        ssl_require=ENVIRONMENT == 'production' or ON_RENDER
     )
 }
 
@@ -100,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = config('TIME_ZONE', default='UTC')
+TIME_ZONE = config('TIME_ZONE', default='America/New_York')
 USE_I18N = True
 USE_TZ = True
 
@@ -147,10 +153,17 @@ SIMPLE_JWT = {
 }
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOWED_ORIGINS', 
-    default='http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
+if ENVIRONMENT == 'production' or ON_RENDER:
+    CORS_ALLOWED_ORIGINS = config(
+        'CORS_ALLOWED_ORIGINS', 
+        default='https://salon-frontend-4pst.onrender.com,https://salon-backend-hl61.onrender.com'
+    ).split(',')
+else:
+    CORS_ALLOWED_ORIGINS = config(
+        'CORS_ALLOWED_ORIGINS', 
+        default='http://localhost:3000,http://127.0.0.1:3000'
+    ).split(',')
+
 CORS_ALLOW_CREDENTIALS = True
 
 # Email settings
@@ -160,8 +173,47 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@virginiahairbraider.com')
 
 # Site info
-SITE_NAME = config('SITE_NAME', default='Salon Management')
-SITE_URL = config('SITE_URL', default='http://localhost:3000')
-CONTACT_EMAIL = config('CONTACT_EMAIL', default='contact@salon.com')
+SITE_NAME = config('SITE_NAME', default='Virginia Hair Braider')
+SITE_URL = config('SITE_URL', default='https://salon-frontend-4pst.onrender.com')
+CONTACT_EMAIL = config('CONTACT_EMAIL', default='berthaajohn151@gmail.com')
+
+# Security settings for production
+if ENVIRONMENT == 'production' or ON_RENDER:
+    # Security settings
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # Debug should be False in production
+    DEBUG = config('DEBUG', default=False, cast=bool)
+    
+    # Logging
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+        },
+    }
