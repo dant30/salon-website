@@ -76,10 +76,12 @@ const Header = () => {
     <header className="header" role="banner">
       <div className="container header-inner">
         {/* Logo */}
-        <Link to="/" className="logo" aria-label="Salon Elegance Home">
+        <Link to="/" className="logo" aria-label="Virginia Hair Braider Home">
           <span className="logo-icon" aria-hidden="true">✂</span>
           <span className="logo-text">
-            Salon<span className="logo-highlight">Elegance</span>
+            <span className="logo-full">Virginia <span className="logo-highlight">Hair Braider</span></span>
+            <span className="logo-medium">Virginia <span className="logo-highlight">Braider</span></span>
+            <span className="logo-short">V<span className="logo-highlight">HB</span></span>
           </span>
         </Link>
 

@@ -45,18 +45,43 @@
   color: var(--primary-dark);
 }
 
+/* ====== RESPONSIVE LOGO SOLUTION ====== */
+
 .logo-text {
+  display: flex;
+  align-items: center;
   font-family: var(--font-secondary);
-  font-size: 1.6rem;
   font-weight: 700;
   color: var(--gray-800);
+  transition: all 0.3s ease;
+}
+
+/* Full version (desktop) */
+.logo-full {
+  display: inline;
+  font-size: 1.25rem;
+  white-space: nowrap;
+  letter-spacing: -0.3px;
+}
+
+/* Medium version (tablet) */
+.logo-medium {
+  display: none;
+  font-size: 1.15rem;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+/* Short version (mobile) */
+.logo-short {
+  display: none;
+  font-size: 1.4rem;
+  white-space: nowrap;
   letter-spacing: -0.5px;
-  transition: color 0.3s ease;
 }
 
 .logo-highlight {
   color: var(--primary-color);
-  margin-left: 0.25rem;
   position: relative;
 }
 
@@ -66,15 +91,62 @@
   bottom: -2px;
   left: 0;
   width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-  border-radius: 1px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  height: 1px;
+  background: var(--primary-light);
+  opacity: 0.5;
 }
 
-.logo:hover .logo-highlight::after {
-  opacity: 1;
+/* Tablet breakpoint (≤ 991px) */
+@media (max-width: 991px) {
+  .logo-full {
+    display: none;
+  }
+  
+  .logo-medium {
+    display: inline;
+  }
+  
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+}
+
+/* Mobile breakpoint (≤ 576px) */
+@media (max-width: 576px) {
+  .logo-medium {
+    display: none;
+  }
+  
+  .logo-short {
+    display: inline;
+  }
+  
+  .logo-icon {
+    font-size: 1.3rem;
+  }
+}
+
+/* Extra small screens (≤ 400px) - Optional icon-only */
+@media (max-width: 400px) {
+  .logo-short {
+    display: none;
+  }
+  
+  .logo {
+    padding: 8px;
+  }
+  
+  .logo-icon {
+    font-size: 1.8rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--primary-50);
+    border: 1.5px solid var(--primary-light);
+  }
 }
 
 /* Desktop Navigation */
