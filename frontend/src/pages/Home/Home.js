@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import ServiceCard from '../../components/salon/ServiceCard/ServiceCard';
 import StaffCard from '../../components/salon/StaffCard/StaffCard';
@@ -13,152 +13,49 @@ import {
   FiCheck,
   FiArrowRight,
   FiChevronLeft,
-  FiChevronRight
+  FiChevronRight,
+  FiLoader
 } from 'react-icons/fi';
 import { GiFlowerEmblem, GiLipstick } from 'react-icons/gi';
+
+const API_URL = process.env.REACT_APP_API_URL || 'https://salon-backend-hl61.onrender.com/api';
 
 const Home = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [visibleSections, setVisibleSections] = useState(() => new Set());
+  const [loading, setLoading] = useState({
+    services: true,
+    staff: true,
+    testimonials: true
+  });
+  const [error, setError] = useState({
+    services: null,
+    staff: null,
+    testimonials: null
+  });
+  const [data, setData] = useState({
+    services: [],
+    staff: [],
+    testimonials: []
+  });
+  const [stats, setStats] = useState({
+    totalClients: 5000,
+    expertStylists: 1, // Virginia only for now
+    totalServices: 0
+  });
 
-  // Mock data - moved outside component to avoid recreating on each render
-  const featuredServices = [
-    {
-      id: 1,
-      name: 'Haircut & Style',
-      description: 'Professional haircut and styling with our expert stylists',
-      duration: 60,
-      price: 45,
-      image: null,
-      category: { name: 'Hair', icon: <FiScissors /> },
-      is_popular: true,
-      color: '#8a6d3b',
-    },
-    {
-      id: 2,
-      name: 'Manicure & Pedicure',
-      description: 'Complete nail care treatment with premium polish',
-      duration: 90,
-      price: 60,
-      discounted_price: 50,
-      image: null,
-      category: { name: 'Nails', icon: <GiLipstick /> },
-      is_popular: true,
-      color: '#d4b483',
-    },
-    {
-      id: 3,
-      name: 'Luxury Facial',
-      description: 'Rejuvenating facial with deep cleansing and hydration',
-      duration: 75,
-      price: 80,
-      image: null,
-      category: { name: 'Skincare', icon: <GiFlowerEmblem /> },
-      is_popular: false,
-      color: '#6b4f2c',
-    },
-    {
-      id: 4,
-      name: 'Spa Massage',
-      description: 'Relaxing full-body massage for ultimate wellness',
-      duration: 90,
-      price: 95,
-      image: null,
-      category: { name: 'Spa', icon: <FiStar /> },
-      is_popular: true,
-      color: '#7a5e34',
-    },
-  ];
-
-  const featuredStaff = [
-    {
-      id: 1,
-      user: {
-        first_name: 'Sarah',
-        last_name: 'Johnson',
-        full_name: 'Sarah Johnson',
-      },
-      title: 'Senior Master Stylist',
-      specialization: [{ name: 'Hair Color' }, { name: 'Extensions' }],
-      experience_years: 12,
-      photo: null,
-      is_active: true,
-      bio: 'Specializes in color correction and custom cuts',
-    },
-    {
-      id: 2,
-      user: {
-        first_name: 'Michael',
-        last_name: 'Chen',
-        full_name: 'Michael Chen',
-      },
-      title: 'Nail Art Director',
-      specialization: [{ name: 'Nail Art' }, { name: 'Spa Treatments' }],
-      experience_years: 8,
-      photo: null,
-      is_active: true,
-      bio: 'Award-winning nail artist with international experience',
-    },
-    {
-      id: 3,
-      user: {
-        first_name: 'Elena',
-        last_name: 'Rodriguez',
-        full_name: 'Elena Rodriguez',
-      },
-      title: 'Skincare Specialist',
-      specialization: [{ name: 'Facials' }, { name: 'Peels' }],
-      experience_years: 6,
-      photo: null,
-      is_active: true,
-      bio: 'Certified esthetician with advanced skincare training',
-    },
-  ];
-
-  const testimonials = [
-    {
-      id: 1,
-      client_name: 'Emma Wilson',
-      rating: 5,
-      comment: 'The attention to detail and customer service is exceptional. Sarah transformed my hair exactly as I envisioned!',
-      service_name: 'Hair Color & Cut',
-      created_at: '2024-01-15',
-      is_featured: true,
-      avatar_color: '#8a6d3b',
-    },
-    {
-      id: 2,
-      client_name: 'David Lee',
-      rating: 5,
-      comment: 'Best salon experience I\'ve ever had! The team is professional, and the results are always flawless.',
-      service_name: 'Complete Grooming Package',
-      created_at: '2024-01-10',
-      is_featured: true,
-      avatar_color: '#6b4f2c',
-    },
-    {
-      id: 3,
-      client_name: 'Sophia Martinez',
-      rating: 5,
-      comment: 'The luxury facial was absolutely incredible. My skin has never looked better. Highly recommended!',
-      service_name: 'Signature Facial',
-      created_at: '2024-01-05',
-      is_featured: true,
-      avatar_color: '#d4b483',
-    },
-  ];
-
+  // Features data (static)
   const features = [
     {
       icon: <FiAward />,
-      title: 'Award-Winning Team',
-      description: 'Multiple industry awards and recognitions for excellence',
+      title: 'Award-Winning Braider',
+      description: 'Virginia has years of experience in protective styling',
       color: '#8a6d3b',
     },
     {
       icon: <FiStar />,
-      title: 'Premium Products',
-      description: 'We use only professional-grade, luxury beauty brands',
+      title: 'Premium Hair Quality',
+      description: 'We use only professional-grade braiding hair',
       color: '#d4b483',
     },
     {
@@ -170,10 +67,282 @@ const Home = () => {
     {
       icon: <FiUsers />,
       title: 'Personalized Service',
-      description: 'Customized treatments tailored to your unique needs',
+      description: 'Customized styles tailored to your unique hair type',
       color: '#7a5e34',
     },
   ];
+
+  // Fetch services from API
+  const fetchServices = useCallback(async () => {
+    try {
+      setLoading(prev => ({ ...prev, services: true }));
+      setError(prev => ({ ...prev, services: null }));
+      
+      const response = await fetch(`${API_URL}/services/`);
+      if (!response.ok) throw new Error('Failed to fetch services');
+      
+      const servicesData = await response.json();
+      
+      // Handle paginated response: if object with results, use results; else assume array
+      const servicesArray = Array.isArray(servicesData) ? servicesData : servicesData.results || [];
+      
+      // Get popular services or first 4 services
+      const featuredServices = servicesArray
+        .sort((a, b) => {
+          // Sort by popularity first, then by display order
+          if (a.is_popular && !b.is_popular) return -1;
+          if (!a.is_popular && b.is_popular) return 1;
+          return a.display_order - b.display_order;
+        })
+        .slice(0, 4)
+        .map(service => ({
+          ...service,
+          category: service.category || { name: 'Braiding', icon: <FiScissors /> },
+          color: getCategoryColor(service.category_name || service.category?.name)
+        }));
+      
+      setData(prev => ({ ...prev, services: featuredServices }));
+      setStats(prev => ({ ...prev, totalServices: servicesArray.length }));
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      setError(prev => ({ ...prev, services: err.message }));
+      // Fallback to mock data if API fails
+      setData(prev => ({ 
+        ...prev, 
+        services: getFallbackServices() 
+      }));
+    } finally {
+      setLoading(prev => ({ ...prev, services: false }));
+    }
+  }, []);
+
+  // Fetch staff from API
+  const fetchStaff = useCallback(async () => {
+    try {
+      setLoading(prev => ({ ...prev, staff: true }));
+      setError(prev => ({ ...prev, staff: null }));
+      
+      const response = await fetch(`${API_URL}/staff/`);
+      if (!response.ok) throw new Error('Failed to fetch staff');
+      
+      const staffData = await response.json();
+      
+      // Handle paginated response
+      const staffArray = Array.isArray(staffData) ? staffData : staffData.results || [];
+      
+      // Get active staff
+      const featuredStaff = staffArray
+        .filter(staff => staff.is_active)
+        .slice(0, 3) // Show max 3 staff members
+        .map(staff => ({
+          ...staff,
+          user: {
+            first_name: staff.full_name?.split(' ')[0] || 'Stylist',
+            last_name: staff.full_name?.split(' ').slice(1).join(' ') || '',
+            full_name: staff.full_name || 'Virginia Hair Braider'
+          },
+          bio: staff.bio || 'Expert hair braider specializing in protective styles'
+        }));
+      
+      setData(prev => ({ ...prev, staff: featuredStaff }));
+    } catch (err) {
+      console.error('Error fetching staff:', err);
+      setError(prev => ({ ...prev, staff: err.message }));
+      // Fallback to mock data
+      setData(prev => ({ 
+        ...prev, 
+        staff: getFallbackStaff() 
+      }));
+    } finally {
+      setLoading(prev => ({ ...prev, staff: false }));
+    }
+  }, []);
+
+  // Fetch testimonials from API (disabled due to 404 - no endpoint exists)
+  const fetchTestimonials = useCallback(async () => {
+    // Temporarily disabled: /api/testimonials/ returns 404. Enable if you add the endpoint to backend/gallery/urls.py
+    setLoading(prev => ({ ...prev, testimonials: false }));
+    setData(prev => ({ ...prev, testimonials: getFallbackTestimonials() }));
+    /*
+    try {
+      setLoading(prev => ({ ...prev, testimonials: true }));
+      setError(prev => ({ ...prev, testimonials: null }));
+      
+      const response = await fetch(`${API_URL}/testimonials/`);
+      if (!response.ok) throw new Error('Failed to fetch testimonials');
+      
+      const testimonialsData = await response.json();
+      
+      // Handle paginated response
+      const testimonialsArray = Array.isArray(testimonialsData) ? testimonialsData : testimonialsData.results || [];
+      
+      // Get featured testimonials or first 3
+      const featuredTestimonials = testimonialsArray
+        .filter(testimonial => testimonial.is_featured || testimonial.is_approved)
+        .slice(0, 3)
+        .map((testimonial, index) => ({
+          ...testimonial,
+          client_name: testimonial.client_name || 'Happy Client',
+          avatar_color: getAvatarColor(index),
+          service_name: testimonial.service?.name || 'Hair Braiding Service'
+        }));
+      
+      setData(prev => ({ ...prev, testimonials: featuredTestimonials }));
+    } catch (err) {
+      console.error('Error fetching testimonials:', err);
+      setError(prev => ({ ...prev, testimonials: err.message }));
+      // Fallback to mock data
+      setData(prev => ({ 
+        ...prev, 
+        testimonials: getFallbackTestimonials() 
+      }));
+    } finally {
+      setLoading(prev => ({ ...prev, testimonials: false }));
+    }
+    */
+  }, []);
+
+  // Helper functions
+  const getCategoryColor = (categoryName) => {
+    const colors = {
+      'Senegal & Island Twists': '#8a6d3b',
+      'Butterfly Locs': '#d4b483',
+      'Boho Braids': '#6b4f2c',
+      'Bora Bora Braids': '#7a5e34',
+      'Crochet Braids': '#8a6d3b',
+      'Dreads/Locs & Sister Locs': '#d4b483',
+      'Faux Locs': '#6b4f2c',
+      'Fulani Braids & Boho': '#7a5e34',
+      'Invisible Twists': '#8a6d3b',
+      'Knotless Braids': '#d4b483',
+      'Regular Box Braids': '#6b4f2c',
+      'Stitch Braids': '#7a5e34',
+      'Men\'s Hairstyles': '#8a6d3b',
+      'Wigs & Weaves': '#d4b483',
+      'Natural Hair Styling': '#6b4f2c',
+      'New/Trending Styles': '#7a5e34',
+      'I-Tips / Micro Links': '#8a6d3b',
+      'Take Down & Touch Up': '#d4b483'
+    };
+    return colors[categoryName] || '#8a6d3b';
+  };
+
+  const getAvatarColor = (index) => {
+    const colors = ['#8a6d3b', '#6b4f2c', '#d4b483', '#7a5e34'];
+    return colors[index % colors.length];
+  };
+
+  const getFallbackServices = () => [
+    {
+      id: 1,
+      name: 'Senegal Twists - Medium',
+      description: 'Classic protective style with medium-sized twists',
+      duration: 180, // 3 hours in minutes
+      price: 170,
+      discounted_price: null,
+      final_price: 170,
+      category: { name: 'Senegal & Island Twists', icon: <FiScissors /> },
+      category_name: 'Senegal & Island Twists',
+      is_popular: true,
+      color: '#8a6d3b',
+    },
+    {
+      id: 2,
+      name: 'Butterfly Locs - Medium',
+      description: 'Bohemian-inspired faux locs with butterfly technique',
+      duration: 200, // 3h 20m in minutes
+      price: 180,
+      discounted_price: null,
+      final_price: 180,
+      category: { name: 'Butterfly Locs', icon: <GiLipstick /> },
+      category_name: 'Butterfly Locs',
+      is_popular: true,
+      color: '#d4b483',
+    },
+    {
+      id: 3,
+      name: 'Boho Braids - Medium',
+      description: 'Braids with added curly extensions for volume',
+      duration: 180, // 3 hours
+      price: 180,
+      discounted_price: null,
+      final_price: 180,
+      category: { name: 'Boho Braids', icon: <GiFlowerEmblem /> },
+      category_name: 'Boho Braids',
+      is_popular: true,
+      color: '#6b4f2c',
+    },
+    {
+      id: 4,
+      name: 'Knotless Braids - Medium',
+      description: 'Modern technique reducing tension on scalp',
+      duration: 180, // 3 hours
+      price: 150,
+      discounted_price: null,
+      final_price: 150,
+      category: { name: 'Knotless Braids', icon: <FiStar /> },
+      category_name: 'Knotless Braids',
+      is_popular: true,
+      color: '#7a5e34',
+    },
+  ];
+
+  const getFallbackStaff = () => [
+    {
+      id: 1,
+      user: {
+        first_name: 'Virginia',
+        last_name: 'Hair Braider',
+        full_name: 'Virginia Hair Braider',
+      },
+      title: 'Master Braider & Owner',
+      specialization: [{ name: 'All Braiding Styles' }, { name: 'Protective Styles' }],
+      experience_years: 8,
+      photo: null,
+      is_active: true,
+      bio: 'Virginia is a highly skilled hair braider with years of experience specializing in protective styles, braids, locs, and extensions.',
+    }
+  ];
+
+  const getFallbackTestimonials = () => [
+    {
+      id: 1,
+      client_name: 'Jessica M.',
+      rating: 5,
+      comment: 'Virginia is AMAZING! My boho braids came out perfect and lasted for weeks. She\'s so professional and her attention to detail is incredible.',
+      service_name: 'Boho Braids',
+      created_at: '2024-01-15',
+      is_featured: true,
+      avatar_color: '#8a6d3b',
+    },
+    {
+      id: 2,
+      client_name: 'Sarah T.',
+      rating: 5,
+      comment: 'I got my first set of butterfly locs from Virginia and I\'m in love! She took her time to make sure everything was perfect.',
+      service_name: 'Butterfly Locs',
+      created_at: '2024-01-10',
+      is_featured: true,
+      avatar_color: '#6b4f2c',
+    },
+    {
+      id: 3,
+      client_name: 'Michael R.',
+      rating: 5,
+      comment: 'Best men\'s braids I\'ve ever had! Virginia knows exactly how to work with men\'s hair and the style held up perfectly.',
+      service_name: 'Men\'s Box Braids',
+      created_at: '2024-01-05',
+      is_featured: true,
+      avatar_color: '#d4b483',
+    },
+  ];
+
+  // Fetch all data on component mount
+  useEffect(() => {
+    fetchServices();
+    fetchStaff();
+    fetchTestimonials();
+  }, [fetchServices, fetchStaff, fetchTestimonials]);
 
   // Intersection Observer for scroll animations
   useEffect(() => {
@@ -198,21 +367,34 @@ const Home = () => {
 
   // Auto-rotate testimonials
   useEffect(() => {
-    if (!testimonials.length) return;
+    if (!data.testimonials.length) return;
 
     const interval = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % testimonials.length);
+      setActiveTestimonial(prev => (prev + 1) % data.testimonials.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [testimonials.length]);
+  }, [data.testimonials.length]);
 
   const nextTestimonial = () => {
-    setActiveTestimonial(prev => (prev + 1) % testimonials.length);
+    setActiveTestimonial(prev => (prev + 1) % data.testimonials.length);
   };
 
   const prevTestimonial = () => {
-    setActiveTestimonial(prev => (prev - 1 + testimonials.length) % testimonials.length);
+    setActiveTestimonial(prev => (prev - 1 + data.testimonials.length) % data.testimonials.length);
+  };
+
+  // Format duration from minutes to readable format
+  const formatDuration = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0 && mins > 0) {
+      return `${hours}h ${mins}m`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${mins}m`;
+    }
   };
 
   return (
@@ -226,28 +408,28 @@ const Home = () => {
         <div className="container">
           <div className="hero-content">
             <div className="hero-badge">
-              <span>Premium Salon Since 2010</span>
+              <span>Professional Hair Braider Since 2015</span>
             </div>
             <h1 className="hero-title">
-              Experience <span className="highlight">Luxury</span> Beauty & Wellness
+              Virginia <span className="highlight">Hair Braider</span>
             </h1>
             <p className="hero-subtitle">
-              Your premier destination for exceptional salon services. 
-              Where artistry meets perfection for your complete transformation.
+              Your premier destination for protective styles, braids, locs, and extensions. 
+              Where artistry meets perfection for your hair transformation.
             </p>
             <div className="hero-stats">
               <div className="stat-item">
-                <span className="stat-number">5,000+</span>
+                <span className="stat-number">{stats.totalClients.toLocaleString()}+</span>
                 <span className="stat-label">Happy Clients</span>
               </div>
               <div className="stat-divider"></div>
               <div className="stat-item">
-                <span className="stat-number">12</span>
-                <span className="stat-label">Expert Stylists</span>
+                <span className="stat-number">{stats.expertStylists}</span>
+                <span className="stat-label">Expert Braider</span>
               </div>
               <div className="stat-divider"></div>
               <div className="stat-item">
-                <span className="stat-number">50+</span>
+                <span className="stat-number">{stats.totalServices}+</span>
                 <span className="stat-label">Services</span>
               </div>
             </div>
@@ -259,7 +441,7 @@ const Home = () => {
               </Link>
               <Link to="/services" className="btn btn-outline-light btn-lg">
                 <FiScissors className="btn-icon" />
-                <span>Explore Services</span>
+                <span>Explore Styles</span>
               </Link>
             </div>
           </div>
@@ -271,25 +453,42 @@ const Home = () => {
         <div className="container">
           <div className="section-header">
             <div className="section-label">Our Specialties</div>
-            <h2>Signature <span className="text-primary">Services</span></h2>
-            <p>Experience our most sought-after treatments, perfected over years of excellence</p>
+            <h2>Popular <span className="text-primary">Styles</span></h2>
+            <p>Experience our most sought-after braiding styles, perfected over years of excellence</p>
           </div>
-          <div 
-            id="services-grid" 
-            className={`services-grid animate-on-scroll ${
-              visibleSections.has('services-grid') ? 'visible' : ''
-            }`}
-          >
-            {featuredServices.map((service) => (
-              <ServiceCard 
-                key={service.id} 
-                service={service}
-              />
-            ))}
-          </div>
+          
+          {loading.services ? (
+            <div className="loading-container">
+              <FiLoader className="loading-spinner" />
+              <p>Loading styles...</p>
+            </div>
+          ) : error.services ? (
+            <div className="error-container">
+              <p className="error-message">⚠️ {error.services}</p>
+              <p className="error-help">Showing sample styles</p>
+            </div>
+          ) : (
+            <div 
+              id="services-grid" 
+              className={`services-grid animate-on-scroll ${
+                visibleSections.has('services-grid') ? 'visible' : ''
+              }`}
+            >
+              {data.services.map((service) => (
+                <ServiceCard 
+                  key={service.id} 
+                  service={{
+                    ...service,
+                    duration: formatDuration(service.duration)
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          
           <div className="section-footer">
             <Link to="/services" className="btn btn-outline btn-with-icon">
-              <span>View All Services</span>
+              <span>View All {stats.totalServices}+ Styles</span>
               <FiArrowRight />
             </Link>
           </div>
@@ -300,9 +499,9 @@ const Home = () => {
       <section className="section features-section bg-light">
         <div className="container">
           <div className="section-header">
-            <div className="section-label">Excellence in Beauty</div>
-            <h2>Why Choose <span className="text-primary">Salon Elegance</span></h2>
-            <p>Discover what sets us apart in the world of luxury beauty</p>
+            <div className="section-label">Excellence in Braiding</div>
+            <h2>Why Choose <span className="text-primary">Virginia</span></h2>
+            <p>Discover what sets us apart in the world of hair braiding</p>
           </div>
           <div 
             id="features-grid"
@@ -331,30 +530,44 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Meet Our Experts */}
+      {/* Meet Our Expert */}
       <section className="section team-section">
         <div className="container">
           <div className="section-header">
-            <div className="section-label">Our Artisans</div>
-            <h2>Meet Our <span className="text-primary">Expert Team</span></h2>
-            <p>Get to know the talented professionals behind your transformation</p>
+            <div className="section-label">Our Artisan</div>
+            <h2>Meet <span className="text-primary">Virginia</span></h2>
+            <p>Get to know the talented professional behind your transformation</p>
           </div>
-          <div 
-            id="team-grid"
-            className={`team-grid animate-on-scroll ${
-              visibleSections.has('team-grid') ? 'visible' : ''
-            }`}
-          >
-            {featuredStaff.map((staff) => (
-              <StaffCard 
-                key={staff.id} 
-                staff={staff}
-              />
-            ))}
-          </div>
+          
+          {loading.staff ? (
+            <div className="loading-container">
+              <FiLoader className="loading-spinner" />
+              <p>Loading staff information...</p>
+            </div>
+          ) : error.staff ? (
+            <div className="error-container">
+              <p className="error-message">⚠️ {error.staff}</p>
+              <p className="error-help">Showing sample information</p>
+            </div>
+          ) : (
+            <div 
+              id="team-grid"
+              className={`team-grid animate-on-scroll ${
+                visibleSections.has('team-grid') ? 'visible' : ''
+              }`}
+            >
+              {data.staff.map((staff) => (
+                <StaffCard 
+                  key={staff.id} 
+                  staff={staff}
+                />
+              ))}
+            </div>
+          )}
+          
           <div className="section-footer">
             <Link to="/about" className="btn btn-outline btn-with-icon">
-              <span>Meet Our Full Team</span>
+              <span>Learn More About Virginia</span>
               <FiArrowRight />
             </Link>
           </div>
@@ -370,52 +583,72 @@ const Home = () => {
             <p>Real stories from our valued customers</p>
           </div>
           
-          <div className="testimonials-carousel" role="region" aria-label="Client testimonials carousel">
-            <button 
-              className="carousel-nav prev"
-              onClick={prevTestimonial}
-              aria-label="Previous testimonial"
-              type="button"
-            >
-              <FiChevronLeft />
-            </button>
-            
-            <div className="testimonials-track">
-              {testimonials.map((review, index) => (
-                <div 
-                  key={review.id}
-                  className={`testimonial-slide ${index === activeTestimonial ? 'active' : ''}`}
-                  role="tabpanel"
-                  aria-hidden={index !== activeTestimonial}
-                >
-                  <ReviewCard review={review} />
+          {loading.testimonials ? (
+            <div className="loading-container">
+              <FiLoader className="loading-spinner" />
+              <p>Loading testimonials...</p>
+            </div>
+          ) : error.testimonials ? (
+            <div className="error-container">
+              <p className="error-message">⚠️ {error.testimonials}</p>
+              <p className="error-help">Showing sample testimonials</p>
+            </div>
+          ) : data.testimonials.length === 0 ? (
+            <div className="no-data">
+              <p>No testimonials yet. Be the first to leave a review!</p>
+            </div>
+          ) : (
+            <div className="testimonials-carousel" role="region" aria-label="Client testimonials carousel">
+              <button 
+                className="carousel-nav prev"
+                onClick={prevTestimonial}
+                aria-label="Previous testimonial"
+                type="button"
+                disabled={data.testimonials.length <= 1}
+              >
+                <FiChevronLeft />
+              </button>
+              
+              <div className="testimonials-track">
+                {data.testimonials.map((review, index) => (
+                  <div 
+                    key={review.id}
+                    className={`testimonial-slide ${index === activeTestimonial ? 'active' : ''}`}
+                    role="tabpanel"
+                    aria-hidden={index !== activeTestimonial}
+                  >
+                    <ReviewCard review={review} />
+                  </div>
+                ))}
+              </div>
+              
+              <button 
+                className="carousel-nav next"
+                onClick={nextTestimonial}
+                aria-label="Next testimonial"
+                type="button"
+                disabled={data.testimonials.length <= 1}
+              >
+                <FiChevronRight />
+              </button>
+              
+              {data.testimonials.length > 1 && (
+                <div className="carousel-dots" role="tablist" aria-label="Testimonial navigation">
+                  {data.testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      className={`dot ${index === activeTestimonial ? 'active' : ''}`}
+                      onClick={() => setActiveTestimonial(index)}
+                      aria-pressed={index === activeTestimonial}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                      type="button"
+                      role="tab"
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-            
-            <button 
-              className="carousel-nav next"
-              onClick={nextTestimonial}
-              aria-label="Next testimonial"
-              type="button"
-            >
-              <FiChevronRight />
-            </button>
-            
-            <div className="carousel-dots" role="tablist" aria-label="Testimonial navigation">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  className={`dot ${index === activeTestimonial ? 'active' : ''}`}
-                  onClick={() => setActiveTestimonial(index)}
-                  aria-pressed={index === activeTestimonial}
-                  aria-label={`Go to testimonial ${index + 1}`}
-                  type="button"
-                  role="tab"
-                />
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -429,8 +662,8 @@ const Home = () => {
               </div>
             </div>
             <div className="promise-text">
-              <h2>Our <span className="text-primary">Premium Promise</span></h2>
-              <p>At Salon Elegance, we commit to providing unparalleled quality and service. Every visit is an experience crafted for your comfort and satisfaction.</p>
+              <h2>Our <span className="text-primary">Quality Promise</span></h2>
+              <p>At Virginia Hair Braider, we commit to providing unparalleled quality and service. Every appointment is crafted for your comfort and satisfaction.</p>
               <ul className="promise-list">
                 <li>
                   <FiCheck />
@@ -438,15 +671,15 @@ const Home = () => {
                 </li>
                 <li>
                   <FiCheck />
-                  <span>Premium Products Only</span>
+                  <span>Premium Braiding Hair Only</span>
                 </li>
                 <li>
                   <FiCheck />
-                  <span>Certified Professionals</span>
+                  <span>Certified Professional</span>
                 </li>
                 <li>
                   <FiCheck />
-                  <span>Hygiene Excellence</span>
+                  <span>Hygiene & Safety Excellence</span>
                 </li>
               </ul>
             </div>
@@ -459,16 +692,16 @@ const Home = () => {
         <div className="cta-background"></div>
         <div className="container">
           <div className="cta-content">
-            <h2>Ready for Your <span className="highlight">Transformation?</span></h2>
-            <p>Book your appointment today and experience luxury beauty services tailored just for you.</p>
+            <h2>Ready for Your <span className="highlight">Hair Transformation?</span></h2>
+            <p>Book your appointment today and experience professional braiding services tailored just for you.</p>
             <div className="cta-actions">
               <Link to="/booking" className="btn btn-primary btn-lg btn-elegant">
                 <FiCalendar className="btn-icon" />
-                <span>Book Your Visit</span>
+                <span>Book Your Style</span>
                 <FiArrowRight className="btn-icon-right" />
               </Link>
               <Link to="/contact" className="btn btn-outline-light btn-lg">
-                <span>Contact Us</span>
+                <span>Contact Virginia</span>
               </Link>
             </div>
           </div>
