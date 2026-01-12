@@ -74,8 +74,9 @@
     <meta name="format-detection" content="address=no" />
     <meta name="format-detection" content="email=yes" />
 
-    <!-- PWA -->
+    <!-- PWA - FIXED: Added mobile-web-app-capable and removed duplicate preload -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Virginia Hair Braider" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -87,11 +88,12 @@
     <!-- Title -->
     <title>Virginia Hair Braider | Professional Hair Braiding Services</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - FIXED: Removed duplicate preload -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Only include fonts actually used in your CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Dancing+Script:wght@500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
 
@@ -252,10 +254,6 @@
       }
     }
     </script>
-
-    <!-- Preload critical assets -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" />
-    <link rel="preload" href="%PUBLIC_URL%/logo192.png" as="image" />
   </head>
 
   <body>
