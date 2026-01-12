@@ -1,17 +1,29 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './styles/globals.css';
+import React, { StrictMode, Suspense } from 'react';
+import { createRoot } from 'react-dom/client';
+
 import App from './App';
+import './styles/globals.css';
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// Grab root element safely
+const container = document.getElementById('root');
+
+if (!container) {
+  throw new Error('Root container missing in index.html');
+}
+
+const root = createRoot(container);
+
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <StrictMode>
+    <Suspense fallback={<div className="app-loading">Loading…</div>}>
+      <App />
+    </Suspense>
+  </StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// Performance metrics (wire to analytics or nuke it)
+reportWebVitals(process.env.NODE_ENV === 'development'
+  ? console.log
+  : undefined
+);

@@ -139,11 +139,10 @@ const Home = () => {
     staff: null,
     testimonials: null
   });
-  const [data, setData] = useState({
-    services: [],
-    staff: [],
-    testimonials: []
-  });
+  // Updated: Separate state variables
+  const [services, setServices] = useState([]);
+  const [staff, setStaff] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [stats, setStats] = useState({
     totalClients: 5000,
     expertStylists: 1,
@@ -215,32 +214,22 @@ const Home = () => {
       console.log('Parsed Services:', servicesArray); // Debug log
       
       // Get popular services or first 4 services (remove .slice(0, 4) if you want all services displayed)
-      const featuredServices = servicesArray
+      const featuredServices = [...servicesArray]
         .sort((a, b) => {
           // Sort by popularity first, then by display order
           if (a.is_popular && !b.is_popular) return -1;
           if (!a.is_popular && b.is_popular) return 1;
           return a.display_order - b.display_order;
         })
-        .slice(0, 4)  // <-- Remove this line if you want all services to display
-        .map(service => ({
-          ...service,
-          category: typeof service.category === 'string' 
-            ? { name: service.category, icon: <FiScissors /> } 
-            : service.category || { name: 'Braiding', icon: <FiScissors /> },
-          category_name: typeof service.category === 'string' ? service.category : service.category?.name || 'Braiding'
-        }));
+        .slice(0, 4);  // <-- Remove this line if you want all services to display
       
-      setData(prev => ({ ...prev, services: featuredServices }));
+      setServices(featuredServices);
       setStats(prev => ({ ...prev, totalServices: servicesArray.length }));
     } catch (err) {
       console.error('Error fetching services:', err);
       setError(prev => ({ ...prev, services: err.message }));
       // Fallback to mock data if API fails
-      setData(prev => ({ 
-        ...prev, 
-        services: getFallbackServices() 
-      }));
+      setServices(getFallbackServices());
     } finally {
       setLoading(prev => ({ ...prev, services: false }));
     }
@@ -274,15 +263,12 @@ const Home = () => {
           bio: staff.bio || 'Expert hair braider specializing in protective styles'
         }));
       
-      setData(prev => ({ ...prev, staff: featuredStaff }));
+      setStaff(featuredStaff);
     } catch (err) {
       console.error('Error fetching staff:', err);
       setError(prev => ({ ...prev, staff: err.message }));
       // Fallback to mock data
-      setData(prev => ({ 
-        ...prev, 
-        staff: getFallbackStaff() 
-      }));
+      setStaff(getFallbackStaff());
     } finally {
       setLoading(prev => ({ ...prev, staff: false }));
     }
@@ -292,7 +278,7 @@ const Home = () => {
   const fetchTestimonials = useCallback(async () => {
     // Temporarily disabled: /api/testimonials/ returns 404. Enable if you add the endpoint to backend/gallery/urls.py
     setLoading(prev => ({ ...prev, testimonials: false }));
-    setData(prev => ({ ...prev, testimonials: getFallbackTestimonials() }));
+    setTestimonials(getFallbackTestimonials());
     /*
     try {
       setLoading(prev => ({ ...prev, testimonials: true }));
@@ -317,12 +303,12 @@ const Home = () => {
           service_name: testimonial.service?.name || 'Hair Braiding Service'
         }));
       
-      setData(prev => ({ ...prev, testimonials: featuredTestimonials }));
+      setTestimonials(featuredTestimonials);
     } catch (err) {
       console.error('Error fetching testimonials:', err);
       setError(prev => ({ ...prev, testimonials: err.message }));
       // Fallback to mock data
-      setData(prev => ({ ...prev, testimonials: getFallbackTestimonials() }));
+      setTestimonials(getFallbackTestimonials());
     } finally {
       setLoading(prev => ({ ...prev, testimonials: false }));
     }
@@ -347,9 +333,7 @@ const Home = () => {
       'Men\'s Hairstyles': '#8a6d3b',
       'Wigs & Weaves': '#d4b483',
       'Natural Hair Styling': '#6b4f2c',
-      'New/Trending Styles': '#7a5e34',
-      'I-Tips / Micro Links': '#8a6d3b',
-      'Take Down & Touch Up': '#d4b483'
+      'New/Trending Styles': '#7a5e34'
     };
     return colors[categoryName] || '#8a6d3b';
   };
@@ -363,6 +347,8 @@ const Home = () => {
 
   // Intersection Observer for scroll animations
   useEffect(() => {
+    if (!services.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
@@ -380,25 +366,25 @@ const Home = () => {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [services.length]);
 
   // Auto-rotate testimonials
   useEffect(() => {
-    if (!data.testimonials.length) return;
+    if (!testimonials.length) return;
 
     const interval = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % data.testimonials.length);
+      setActiveTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [data.testimonials.length]);
+  }, [testimonials.length]);
 
   const nextTestimonial = () => {
-    setActiveTestimonial(prev => (prev + 1) % data.testimonials.length);
+    setActiveTestimonial(prev => (prev + 1) % testimonials.length);
   };
 
   const prevTestimonial = () => {
-    setActiveTestimonial(prev => (prev - 1 + data.testimonials.length) % data.testimonials.length);
+    setActiveTestimonial(prev => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   // Format duration from minutes to readable format
@@ -491,7 +477,7 @@ const Home = () => {
                 visibleSections.has('services-grid') ? 'visible' : ''
               }`}
             >
-              {data.services.map((service) => (
+              {services.map((service) => (
                 <ServiceCard 
                   key={service.id} 
                   service={{
@@ -573,10 +559,10 @@ const Home = () => {
                 visibleSections.has('team-grid') ? 'visible' : ''
               }`}
             >
-              {data.staff.map((staff) => (
+              {staff.map((staffMember) => (
                 <StaffCard 
-                  key={staff.id} 
-                  staff={staff}
+                  key={staffMember.id} 
+                  staff={staffMember}
                 />
               ))}
             </div>
@@ -610,7 +596,7 @@ const Home = () => {
               <p className="error-message">⚠️ {error.testimonials}</p>
               <p className="error-help">Showing sample testimonials</p>
             </div>
-          ) : data.testimonials.length === 0 ? (
+          ) : testimonials.length === 0 ? (
             <div className="no-data">
               <p>No testimonials yet. Be the first to leave a review!</p>
             </div>
@@ -621,13 +607,13 @@ const Home = () => {
                 onClick={prevTestimonial}
                 aria-label="Previous testimonial"
                 type="button"
-                disabled={data.testimonials.length <= 1}
+                disabled={testimonials.length <= 1}
               >
                 <FiChevronLeft />
               </button>
               
               <div className="testimonials-track">
-                {data.testimonials.map((review, index) => (
+                {testimonials.map((review, index) => (
                   <div 
                     key={review.id}
                     className={`testimonial-slide ${index === activeTestimonial ? 'active' : ''}`}
@@ -644,7 +630,7 @@ const Home = () => {
                 onClick={nextTestimonial}
                 aria-label="Next testimonial"
                 type="button"
-                disabled={data.testimonials.length <= 1}
+                disabled={testimonials.length <= 1}
               >
                 <FiChevronRight />
               </button>
@@ -652,7 +638,7 @@ const Home = () => {
           )}
           
           <div className="carousel-dots">
-            {data.testimonials.map((_, index) => (
+            {testimonials.map((_, index) => (
               <button
                 key={index}
                 className={`dot ${index === activeTestimonial ? 'active' : ''}`}
@@ -698,7 +684,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Final Call to Action */}
+      {/* Call to Action */}
       <section className="cta-section">
         <div className="cta-background"></div>
         <div className="container">
