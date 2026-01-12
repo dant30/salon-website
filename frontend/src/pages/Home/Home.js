@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import ServiceCard from '../../components/salon/ServiceCard/ServiceCard';
 import StaffCard from '../../components/salon/StaffCard/StaffCard';
@@ -177,6 +177,29 @@ const Home = () => {
     },
   ];
 
+  // Format duration from minutes to readable format (moved before useMemo)
+  const formatDuration = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0 && mins > 0) {
+      return `${hours}h ${mins}m`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${mins}m`;
+    }
+  };
+
+  // Memoize formatted services to avoid recalculating duration on every render
+  const formattedServices = useMemo(
+    () =>
+      services.map(service => ({
+        ...service,
+        duration: formatDuration(service.duration),
+      })),
+    [services]
+  );
+
   // Fetch services from API
   const fetchServices = useCallback(async () => {
     try {
@@ -195,32 +218,21 @@ const Home = () => {
         // Direct array response
         servicesArray = responseData;
       } else if (responseData.results && Array.isArray(responseData.results)) {
-        // Paginated response from DRF
+        // Paginated response
         servicesArray = responseData.results;
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        // Some APIs wrap in data property
-        servicesArray = responseData.data;
-      } else {
-        // Fallback: try to find any array in the response
-        for (const key in responseData) {
-          if (Array.isArray(responseData[key])) {
-            servicesArray = responseData[key];
-            break;
-          }
-        }
       }
       
-      console.log('Services API Response:', responseData); // Debug log
-      console.log('Parsed Services:', servicesArray); // Debug log
+      // Sort by display_order, then by name
+      servicesArray.sort((a, b) => {
+        if (a.display_order !== b.display_order) {
+          return (a.display_order ?? 0) - (b.display_order ?? 0);  // Use ?? for safety
+        }
+        return a.name.localeCompare(b.name);
+      });
       
-      // Get popular services or first 4 services (remove .slice(0, 4) if you want all services displayed)
-      const featuredServices = [...servicesArray]
-        .sort((a, b) => {
-          // Sort by popularity first, then by display order
-          if (a.is_popular && !b.is_popular) return -1;
-          if (!a.is_popular && b.is_popular) return 1;
-          return a.display_order - b.display_order;
-        })
+      // Get featured services (popular or first 4)
+      const featuredServices = servicesArray
+        .filter(service => service.is_popular)
         .slice(0, 4);  // <-- Remove this line if you want all services to display
       
       setServices(featuredServices);
@@ -242,8 +254,17 @@ const Home = () => {
       setError(prev => ({ ...prev, staff: null }));
       
       const response = await fetch(`${API_URL}/staff/`);
-      if (!response.ok) throw new Error('Failed to fetch staff');
+      if (!response.ok) {
+        // If 401 or auth error, fall back to mock data for non-logged-in users
+        if (response.status === 401) {
+          console.warn('Staff API requires authentication; using fallback data');
+          setStaff(getFallbackStaff());
+          return;
+        }
+        throw new Error('Failed to fetch staff');
+      }
       
+      console.log('Staff API Response:', response);  // Add this
       const staffData = await response.json();
       
       // Handle paginated response
@@ -387,19 +408,6 @@ const Home = () => {
     setActiveTestimonial(prev => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
-  // Format duration from minutes to readable format
-  const formatDuration = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0 && mins > 0) {
-      return `${hours}h ${mins}m`;
-    } else if (hours > 0) {
-      return `${hours}h`;
-    } else {
-      return `${mins}m`;
-    }
-  };
-
   return (
     <div className="home">
       {/* Hero Section */}
@@ -477,13 +485,10 @@ const Home = () => {
                 visibleSections.has('services-grid') ? 'visible' : ''
               }`}
             >
-              {services.map((service) => (
+              {formattedServices.map((service) => (
                 <ServiceCard 
                   key={service.id} 
-                  service={{
-                    ...service,
-                    duration: formatDuration(service.duration)
-                  }}
+                  service={service}  // Now uses pre-formatted service
                 />
               ))}
             </div>
