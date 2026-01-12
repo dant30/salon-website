@@ -45,7 +45,8 @@ const Services = () => {
             <FiFilter />
             <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
               <option value="">All Categories</option>
-              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              
+              {categories.map((cat, index) => <option key={index} value={cat}>{cat}</option>)}
             </select>
           </div>
         </div>

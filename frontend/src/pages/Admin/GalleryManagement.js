@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';  // Added useCallback
+import React, { useState, useEffect, useCallback } from 'react';
 import galleryService from '../../services/galleryService';
 import LoadingSpinner from '../../components/common/LoadingSpinner/LoadingSpinner';
 import { useToast } from '../../components/common/Toast/Toast';
@@ -12,7 +12,6 @@ const GalleryManagement = () => {
   const [isCreating, setIsCreating] = useState(false);
   const toast = useToast();
 
-  // Memoize fetchImages to avoid dependency issues
   const fetchImages = useCallback(async () => {
     try {
       const data = await galleryService.getImages();
@@ -23,11 +22,11 @@ const GalleryManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);  // Dependencies: toast (stable from context)
+  }, [toast]);
 
   useEffect(() => {
     fetchImages();
-  }, [fetchImages]);  // Now includes fetchImages as a dependency
+  }, [fetchImages]);
 
   const handleSave = async (image) => {
     try {

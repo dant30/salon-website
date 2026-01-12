@@ -1,3 +1,4 @@
+# filepath: backend/apps/staff/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import StaffViewSet, StaffServiceViewSet, StaffAvailabilityViewSet, StaffPreferenceViewSet

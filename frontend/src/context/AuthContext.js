@@ -23,15 +23,17 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       // Fetch user data
       axios.get(`${process.env.REACT_APP_API_URL}/auth/users/me/`)
-        .then(response => setUser(response.data))
+        .then(response => {
+          setUser(response.data);
+          setIsLoading(false);  // Added: Ensure loading stops on success
+        })
         .catch(() => {
           // If access token is invalid, try refreshing it
           if (refreshToken) {
-            axios.post(`${process.env.REACT_APP_API_URL}/api/token/refresh/`, { refresh: refreshToken })
-              .then(refreshResponse => {
-                const newAccessToken = refreshResponse.data.access;
-                localStorage.setItem('access', newAccessToken);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+            axios.post(`${process.env.REACT_APP_API_URL}/token/refresh/`, { refresh: refreshToken })
+              .then(res => {
+                localStorage.setItem('access', res.data.access);
+                axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.access}`;  // Fixed: Use new token
                 return axios.get(`${process.env.REACT_APP_API_URL}/auth/users/me/`);
               })
               .then(response => setUser(response.data))
@@ -40,14 +42,11 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem('refresh');
                 delete axios.defaults.headers.common['Authorization'];
               })
-              .finally(() => setIsLoading(false));
+              .finally(() => setIsLoading(false));  // Ensure loading stops
           } else {
-            localStorage.removeItem('access');
-            delete axios.defaults.headers.common['Authorization'];
             setIsLoading(false);
           }
-        })
-        .finally(() => setIsLoading(false));
+        });
     } else {
       setIsLoading(false);
     }
@@ -55,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login/`, { email, password });
-    const { access, refresh, user } = response.data;  // Updated destructuring
+    const { access, refresh, user } = response.data;
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
     axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
@@ -75,7 +74,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/register/`, data);
-    const { access, refresh, user } = response.data;  // Updated destructuring
+    const { access, refresh, user } = response.data;
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
     axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
@@ -87,8 +86,28 @@ export const AuthProvider = ({ children }) => {
     setUser(response.data);
   };
 
+  // New functions for profile management
+  const getUserProfile = async () => {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/auth/profiles/my_profile/`);
+    return response.data;
+  };
+
+  const updateUserProfile = async (data) => {
+    const response = await axios.patch(`${process.env.REACT_APP_API_URL}/auth/profiles/my_profile/`, data);
+    return response.data;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, register, updateProfile }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoading, 
+      login, 
+      logout, 
+      register, 
+      updateProfile, 
+      getUserProfile,  // Added
+      updateUserProfile  // Added
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -20,6 +20,112 @@ import { GiFlowerEmblem, GiLipstick } from 'react-icons/gi';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://salon-backend-hl61.onrender.com/api';
 
+// Move fallback functions outside the component for stability
+const getFallbackServices = () => [
+  {
+    id: 1,
+    name: 'Senegal Twists - Medium',
+    description: 'Classic protective style with medium-sized twists',
+    duration: 180,
+    price: 170,
+    discounted_price: null,
+    final_price: 170,
+    category: { name: 'Senegal & Island Twists', icon: <FiScissors /> },
+    category_name: 'Senegal & Island Twists',
+    is_popular: true,
+    color: '#8a6d3b',
+  },
+  {
+    id: 2,
+    name: 'Butterfly Locs - Medium',
+    description: 'Bohemian-inspired faux locs with butterfly technique',
+    duration: 200,
+    price: 180,
+    discounted_price: null,
+    final_price: 180,
+    category: { name: 'Butterfly Locs', icon: <GiLipstick /> },
+    category_name: 'Butterfly Locs',
+    is_popular: true,
+    color: '#d4b483',
+  },
+  {
+    id: 3,
+    name: 'Boho Braids - Medium',
+    description: 'Braids with added curly extensions for volume',
+    duration: 180,
+    price: 180,
+    discounted_price: null,
+    final_price: 180,
+    category: { name: 'Boho Braids', icon: <GiFlowerEmblem /> },
+    category_name: 'Boho Braids',
+    is_popular: true,
+    color: '#6b4f2c',
+  },
+  {
+    id: 4,
+    name: 'Knotless Braids - Medium',
+    description: 'Modern technique reducing tension on scalp',
+    duration: 180,
+    price: 150,
+    discounted_price: null,
+    final_price: 150,
+    category: { name: 'Knotless Braids', icon: <FiStar /> },
+    category_name: 'Knotless Braids',
+    is_popular: true,
+    color: '#7a5e34',
+  },
+];
+
+const getFallbackStaff = () => [
+  {
+    id: 1,
+    user: {
+      first_name: 'Virginia',
+      last_name: 'Hair Braider',
+      full_name: 'Virginia Hair Braider',
+    },
+    title: 'Master Braider & Owner',
+    specialization: [{ name: 'All Braiding Styles' }, { name: 'Protective Styles' }],
+    experience_years: 8,
+    photo: null,
+    is_active: true,
+    bio: 'Virginia is a highly skilled hair braider with years of experience specializing in protective styles, braids, locs, and extensions.',
+  }
+];
+
+const getFallbackTestimonials = () => [
+  {
+    id: 1,
+    client_name: 'Jessica M.',
+    rating: 5,
+    comment: 'Virginia is AMAZING! My boho braids came out perfect and lasted for weeks. She\'s so professional and her attention to detail is incredible.',
+    service_name: 'Boho Braids',
+    created_at: '2024-01-15',
+    is_featured: true,
+    avatar_color: '#8a6d3b',
+  },
+  {
+    id: 2,
+    client_name: 'Sarah T.',
+    rating: 5,
+    comment: 'I got my first set of butterfly locs from Virginia and I\'m in love! She took her time to make sure everything was perfect.',
+    service_name: 'Butterfly Locs',
+    created_at: '2024-01-10',
+    is_featured: true,
+    avatar_color: '#6b4f2c',
+  },
+  {
+    id: 3,
+    client_name: 'Michael R.',
+    rating: 5,
+    comment: 'Best men\'s braids I\'ve ever had! Virginia knows exactly how to work with men\'s hair and the style held up perfectly.',
+    service_name: 'Men\'s Box Braids',
+    created_at: '2024-01-05',
+    is_featured: true,
+    avatar_color: '#d4b483',
+  },
+];
+
 const Home = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [visibleSections, setVisibleSections] = useState(() => new Set());
@@ -40,7 +146,7 @@ const Home = () => {
   });
   const [stats, setStats] = useState({
     totalClients: 5000,
-    expertStylists: 1, // Virginia only for now
+    expertStylists: 1,
     totalServices: 0
   });
 
@@ -81,12 +187,34 @@ const Home = () => {
       const response = await fetch(`${API_URL}/services/`);
       if (!response.ok) throw new Error('Failed to fetch services');
       
-      const servicesData = await response.json();
+      const responseData = await response.json();
       
-      // Handle paginated response: if object with results, use results; else assume array
-      const servicesArray = Array.isArray(servicesData) ? servicesData : servicesData.results || [];
+      // Handle different API response structures:
+      let servicesArray = [];
       
-      // Get popular services or first 4 services
+      if (Array.isArray(responseData)) {
+        // Direct array response
+        servicesArray = responseData;
+      } else if (responseData.results && Array.isArray(responseData.results)) {
+        // Paginated response from DRF
+        servicesArray = responseData.results;
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        // Some APIs wrap in data property
+        servicesArray = responseData.data;
+      } else {
+        // Fallback: try to find any array in the response
+        for (const key in responseData) {
+          if (Array.isArray(responseData[key])) {
+            servicesArray = responseData[key];
+            break;
+          }
+        }
+      }
+      
+      console.log('Services API Response:', responseData); // Debug log
+      console.log('Parsed Services:', servicesArray); // Debug log
+      
+      // Get popular services or first 4 services (remove .slice(0, 4) if you want all services displayed)
       const featuredServices = servicesArray
         .sort((a, b) => {
           // Sort by popularity first, then by display order
@@ -94,11 +222,13 @@ const Home = () => {
           if (!a.is_popular && b.is_popular) return 1;
           return a.display_order - b.display_order;
         })
-        .slice(0, 4)
+        .slice(0, 4)  // <-- Remove this line if you want all services to display
         .map(service => ({
           ...service,
-          category: service.category || { name: 'Braiding', icon: <FiScissors /> },
-          color: getCategoryColor(service.category_name || service.category?.name)
+          category: typeof service.category === 'string' 
+            ? { name: service.category, icon: <FiScissors /> } 
+            : service.category || { name: 'Braiding', icon: <FiScissors /> },
+          category_name: typeof service.category === 'string' ? service.category : service.category?.name || 'Braiding'
         }));
       
       setData(prev => ({ ...prev, services: featuredServices }));
@@ -114,7 +244,7 @@ const Home = () => {
     } finally {
       setLoading(prev => ({ ...prev, services: false }));
     }
-  }, []);
+  }, []);  // No dependencies needed now that fallbacks are outside
 
   // Fetch staff from API
   const fetchStaff = useCallback(async () => {
@@ -183,7 +313,7 @@ const Home = () => {
         .map((testimonial, index) => ({
           ...testimonial,
           client_name: testimonial.client_name || 'Happy Client',
-          avatar_color: getAvatarColor(index),
+          avatar_color: '#8a6d3b',  // Use static color or remove if not needed
           service_name: testimonial.service?.name || 'Hair Braiding Service'
         }));
       
@@ -192,10 +322,7 @@ const Home = () => {
       console.error('Error fetching testimonials:', err);
       setError(prev => ({ ...prev, testimonials: err.message }));
       // Fallback to mock data
-      setData(prev => ({ 
-        ...prev, 
-        testimonials: getFallbackTestimonials() 
-      }));
+      setData(prev => ({ ...prev, testimonials: getFallbackTestimonials() }));
     } finally {
       setLoading(prev => ({ ...prev, testimonials: false }));
     }
@@ -226,116 +353,6 @@ const Home = () => {
     };
     return colors[categoryName] || '#8a6d3b';
   };
-
-  const getAvatarColor = (index) => {
-    const colors = ['#8a6d3b', '#6b4f2c', '#d4b483', '#7a5e34'];
-    return colors[index % colors.length];
-  };
-
-  const getFallbackServices = () => [
-    {
-      id: 1,
-      name: 'Senegal Twists - Medium',
-      description: 'Classic protective style with medium-sized twists',
-      duration: 180, // 3 hours in minutes
-      price: 170,
-      discounted_price: null,
-      final_price: 170,
-      category: { name: 'Senegal & Island Twists', icon: <FiScissors /> },
-      category_name: 'Senegal & Island Twists',
-      is_popular: true,
-      color: '#8a6d3b',
-    },
-    {
-      id: 2,
-      name: 'Butterfly Locs - Medium',
-      description: 'Bohemian-inspired faux locs with butterfly technique',
-      duration: 200, // 3h 20m in minutes
-      price: 180,
-      discounted_price: null,
-      final_price: 180,
-      category: { name: 'Butterfly Locs', icon: <GiLipstick /> },
-      category_name: 'Butterfly Locs',
-      is_popular: true,
-      color: '#d4b483',
-    },
-    {
-      id: 3,
-      name: 'Boho Braids - Medium',
-      description: 'Braids with added curly extensions for volume',
-      duration: 180, // 3 hours
-      price: 180,
-      discounted_price: null,
-      final_price: 180,
-      category: { name: 'Boho Braids', icon: <GiFlowerEmblem /> },
-      category_name: 'Boho Braids',
-      is_popular: true,
-      color: '#6b4f2c',
-    },
-    {
-      id: 4,
-      name: 'Knotless Braids - Medium',
-      description: 'Modern technique reducing tension on scalp',
-      duration: 180, // 3 hours
-      price: 150,
-      discounted_price: null,
-      final_price: 150,
-      category: { name: 'Knotless Braids', icon: <FiStar /> },
-      category_name: 'Knotless Braids',
-      is_popular: true,
-      color: '#7a5e34',
-    },
-  ];
-
-  const getFallbackStaff = () => [
-    {
-      id: 1,
-      user: {
-        first_name: 'Virginia',
-        last_name: 'Hair Braider',
-        full_name: 'Virginia Hair Braider',
-      },
-      title: 'Master Braider & Owner',
-      specialization: [{ name: 'All Braiding Styles' }, { name: 'Protective Styles' }],
-      experience_years: 8,
-      photo: null,
-      is_active: true,
-      bio: 'Virginia is a highly skilled hair braider with years of experience specializing in protective styles, braids, locs, and extensions.',
-    }
-  ];
-
-  const getFallbackTestimonials = () => [
-    {
-      id: 1,
-      client_name: 'Jessica M.',
-      rating: 5,
-      comment: 'Virginia is AMAZING! My boho braids came out perfect and lasted for weeks. She\'s so professional and her attention to detail is incredible.',
-      service_name: 'Boho Braids',
-      created_at: '2024-01-15',
-      is_featured: true,
-      avatar_color: '#8a6d3b',
-    },
-    {
-      id: 2,
-      client_name: 'Sarah T.',
-      rating: 5,
-      comment: 'I got my first set of butterfly locs from Virginia and I\'m in love! She took her time to make sure everything was perfect.',
-      service_name: 'Butterfly Locs',
-      created_at: '2024-01-10',
-      is_featured: true,
-      avatar_color: '#6b4f2c',
-    },
-    {
-      id: 3,
-      client_name: 'Michael R.',
-      rating: 5,
-      comment: 'Best men\'s braids I\'ve ever had! Virginia knows exactly how to work with men\'s hair and the style held up perfectly.',
-      service_name: 'Men\'s Box Braids',
-      created_at: '2024-01-05',
-      is_featured: true,
-      avatar_color: '#d4b483',
-    },
-  ];
 
   // Fetch all data on component mount
   useEffect(() => {
@@ -411,7 +428,7 @@ const Home = () => {
               <span>Professional Hair Braider Since 2015</span>
             </div>
             <h1 className="hero-title">
-              Virginia <span className="highlight">Hair Braider</span>
+              Welcome to <span className="highlight">Virginia</span> Hair Braider
             </h1>
             <p className="hero-subtitle">
               Your premier destination for protective styles, braids, locs, and extensions. 
@@ -631,35 +648,29 @@ const Home = () => {
               >
                 <FiChevronRight />
               </button>
-              
-              {data.testimonials.length > 1 && (
-                <div className="carousel-dots" role="tablist" aria-label="Testimonial navigation">
-                  {data.testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`dot ${index === activeTestimonial ? 'active' : ''}`}
-                      onClick={() => setActiveTestimonial(index)}
-                      aria-pressed={index === activeTestimonial}
-                      aria-label={`Go to testimonial ${index + 1}`}
-                      type="button"
-                      role="tab"
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           )}
+          
+          <div className="carousel-dots">
+            {data.testimonials.map((_, index) => (
+              <button
+                key={index}
+                className={`dot ${index === activeTestimonial ? 'active' : ''}`}
+                onClick={() => setActiveTestimonial(index)}
+                aria-label={`Go to testimonial ${index + 1}`}
+                type="button"
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Premium Promise */}
+      {/* Promise Section */}
       <section className="section promise-section">
         <div className="container">
           <div className="promise-content">
-            <div className="promise-image">
-              <div className="promise-image-placeholder">
-                <FiAward size={64} color="var(--primary-color)" />
-              </div>
+            <div className="promise-image-placeholder">
+              <FiAward size={64} color="var(--primary-color)" />
             </div>
             <div className="promise-text">
               <h2>Our <span className="text-primary">Quality Promise</span></h2>

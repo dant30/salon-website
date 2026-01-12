@@ -164,6 +164,7 @@ class StaffAvailabilityViewSet(viewsets.ModelViewSet):
 
 
 class StaffPreferenceViewSet(viewsets.ModelViewSet):
+    queryset = StaffPreference.objects.all()  # Add this line
     serializer_class = StaffPreferenceSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     
@@ -175,7 +176,6 @@ class StaffPreferenceViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def primary(self, request):
-        """Get user's primary/favorite stylist."""
         preference = StaffPreference.objects.filter(
             user=request.user,
             is_primary=True
@@ -192,7 +192,6 @@ class StaffPreferenceViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def set_primary(self, request, pk=None):
-        """Set this preference as primary."""
         preference = self.get_object()
         
         StaffPreference.objects.filter(user=request.user).update(is_primary=False)

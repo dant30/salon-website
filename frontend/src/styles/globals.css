@@ -397,6 +397,32 @@ img {
 .align-end { align-items: flex-end; }
 .align-stretch { align-items: stretch; }
 
+/* Toast Root Positioning - CENTERED BELOW HEADER */
+#toast-root {
+  position: fixed;
+  top: 100px; /* Space below header */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+  width: auto;
+  max-width: 500px;
+}
+
+/* Ensure toast items have pointer events */
+#toast-root * {
+  pointer-events: auto;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  #toast-root {
+    top: 80px;
+    width: 90%;
+    max-width: 400px;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   h1 { font-size: var(--font-size-3xl); }

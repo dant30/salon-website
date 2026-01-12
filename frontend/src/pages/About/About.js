@@ -7,27 +7,13 @@ const TEAM_MEMBERS = [
   {
     id: 1,
     user: {
-      first_name: 'Sarah',
-      last_name: 'Johnson',
-      full_name: 'Sarah Johnson',
+      first_name: 'Virginia',
+      last_name: 'Hair Braider',
+      full_name: 'Virginia Hair Braider',
     },
-    title: 'Senior Stylist & Owner',
-    bio: 'With over 15 years of experience, Sarah specializes in color correction and balayage.',
-    specialization: [{ name: 'Hair' }, { name: 'Color' }],
-    experience_years: 15,
-    photo: null,
-    is_active: true,
-  },
-  {
-    id: 2,
-    user: {
-      first_name: 'Michael',
-      last_name: 'Chen',
-      full_name: 'Michael Chen',
-    },
-    title: 'Nail Specialist',
-    bio: 'Michael brings creativity and precision to every nail service.',
-    specialization: [{ name: 'Nails' }, { name: 'Spa' }],
+    title: 'Master Braider & Owner',
+    bio: 'Virginia is a highly skilled hair braider with years of experience specializing in protective styles, braids, locs, and extensions. She is passionate about creating beautiful, healthy hairstyles that make her clients feel confident and beautiful.',
+    specialization: [{ name: 'All Braiding Styles' }, { name: 'Protective Styles' }],
     experience_years: 8,
     photo: null,
     is_active: true,
@@ -38,17 +24,17 @@ const VALUES = [
   {
     icon: <FiStar />,
     title: 'Quality',
-    text: 'We use premium products and uphold the highest service standards.',
+    text: 'We use premium hair and uphold the highest standards in braiding techniques.',
   },
   {
     icon: <FiUsers />,
     title: 'Community',
-    text: 'We proudly support and grow with our local community.',
+    text: 'We proudly support and grow with our local community in Nanticoke, PA.',
   },
   {
     icon: <FiAward />,
     title: 'Expertise',
-    text: 'Certified professionals with years of real-world experience.',
+    text: 'Certified professionals with years of real-world experience in hair braiding.',
   },
   {
     icon: <FiClock />,
@@ -63,8 +49,8 @@ const About = () => {
       <div className="page-container">
         {/* Header */}
         <header className="page-header">
-          <h1>About Salon Elegance</h1>
-          <p>Luxury beauty and wellness, rooted in care and craft</p>
+          <h1>About Virginia Hair Braider</h1>
+          <p>Professional hair braiding services, rooted in skill and care</p>
         </header>
 
         {/* Story */}
@@ -72,18 +58,16 @@ const About = () => {
           <div className="story-content">
             <h2>Our Story</h2>
             <p>
-              Founded in 2010, Salon Elegance began as a boutique salon with a simple belief:
-              beauty should feel personal, calm, and exceptional.
+              Virginia Hair Braider was founded with a passion for creating beautiful, protective hairstyles that empower clients to feel confident and stylish. With over 8 years of experience, Virginia specializes in a wide range of braiding techniques, from Senegal twists and butterfly locs to knotless braids and more.
             </p>
             <p>
-              As we’ve grown, our standards haven’t shifted. Every service, every product,
-              every interaction is shaped by intention and expertise.
+              Located in Nanticoke, PA, our salon is dedicated to providing personalized, high-quality hair services in a welcoming environment. Every braid is crafted with attention to detail, using premium materials to ensure lasting results and healthy hair.
             </p>
           </div>
 
           <div className="story-image" aria-hidden="true">
             <div className="image-placeholder">
-              <span>Salon Elegance</span>
+              <span>Virginia Hair Braider</span>
             </div>
           </div>
         </section>
@@ -118,8 +102,8 @@ const About = () => {
 
         {/* CTA */}
         <section className="about-cta">
-          <h2>Ready to Feel the Difference?</h2>
-          <p>Book your appointment and experience beauty done right.</p>
+          <h2>Ready for Your Hair Transformation?</h2>
+          <p>Book your appointment with Virginia and experience expert braiding services.</p>
           <a href="/booking" className="btn btn-primary btn-lg">
             Book an Appointment
           </a>
