@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 from django.core.validators import MinValueValidator
 
 
@@ -41,7 +42,7 @@ class Service(models.Model):
         blank=True,
         validators=[MinValueValidator(0)]
     )
-    image = models.ImageField(upload_to='services/', null=True, blank=True)
+    image = CloudinaryField('image', folder='services/', blank=True, null=True)
     is_popular = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     display_order = models.IntegerField(default=0)
@@ -72,11 +73,11 @@ class Service(models.Model):
 
 class ServiceImage(models.Model):
     service = models.ForeignKey(
-        Service, 
-        on_delete=models.CASCADE, 
+        Service,
+        on_delete=models.CASCADE,
         related_name='images'
     )
-    image = models.ImageField(upload_to='service_images/')
+    image = CloudinaryField('image', folder='service_images/')
     caption = models.CharField(max_length=200, blank=True)
     display_order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
