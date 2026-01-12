@@ -1,15 +1,87 @@
 {
-  "short_name": "Salon Elegance",
-  "name": "Salon Elegance - Beauty & Wellness",
+  "short_name": "Virginia Hair Braider",
+  "name": "Virginia Hair Braider - Professional Braiding Services",
+  "description": "Expert hair braider specializing in protective styles, braids, locs, and extensions since 2015",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#8a6d3b",
+  "background_color": "#f9f7f3",
+  "orientation": "portrait-primary",
+  "categories": ["beauty", "lifestyle", "shopping"],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Virginia Hair Braider Home Page"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Virginia Hair Braider Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Appointment",
+      "short_name": "Book",
+      "description": "Book a hair braiding appointment",
+      "url": "/booking",
+      "icons": [
+        {
+          "src": "icons/calendar-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "View Services",
+      "short_name": "Services",
+      "description": "Browse all braiding services",
+      "url": "/services",
+      "icons": [
+        {
+          "src": "icons/scissors-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Contact Virginia",
+      "short_name": "Contact",
+      "description": "Contact Virginia directly",
+      "url": "/contact",
+      "icons": [
+        {
+          "src": "icons/phone-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
